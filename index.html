@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan, Store, and Print QR Code</title>
+    <!-- Include the QRCode.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body>
+    <h1>QR Code Scanner and Printer</h1>
+    <p>Scan the QR code, store the data, and then print the QR code.</p>
+    
+    <!-- Input field to simulate scanner -->
+    <label for="scanner-input">Scan QR Code:</label>
+    <input type="text" id="scanner-input" placeholder="Scan QR Code here" autofocus>
+    
+    <div id="qr-code-container" style="margin-top: 20px;">
+        <!-- QR code image will be generated here -->
+    </div>
+
+    <button id="print-btn" style="margin-top: 20px;">Print Scanned QR Code</button>
+
+    <script>
+        // Store the recently scanned QR code data
+        let scannedData = null;
+
+        // Function to generate and display QR Code based on the scanned data
+        function generateQRCode(data) {
+            // Clear the previous QR code
+            const qrContainer = document.getElementById('qr-code-container');
+            qrContainer.innerHTML = '';
+
+            // Generate the new QR code
+            const qrCodeElement = document.createElement('div');
+            qrContainer.appendChild(qrCodeElement);
+
+            // Generate the QR code from the scanned data
+            QRCode.toCanvas(qrCodeElement, data, function (error) {
+                if (error) console.error(error);
+                console.log("QR Code generated!");
+            });
+        }
+
+        // Capture scanned data from the input field
+        document.getElementById('scanner-input').addEventListener('input', function(event) {
+            const scannedValue = event.target.value;
+
+            if (scannedValue) {
+                // Store the scanned data (this could be stored temporarily in sessionStorage or elsewhere)
+                scannedData = scannedValue;
+
+                // Display the QR code generated from the scanned data
+                generateQRCode(scannedData);
+
+                // Optionally, you can store the data in sessionStorage if you want it to persist across page reloads
+                sessionStorage.setItem('recentScan', scannedData);
+            }
+        });
+
+        // Print the recently scanned QR code when the print button is clicked
+        document.getElementById('print-btn').addEventListener('click', function() {
+            const qrCodeContainer = document.getElementById('qr-code-container');
+            const canvas = qrCodeContainer.querySelector('canvas');
+            
+            if (canvas) {
+                // Open a print window and print the QR code canvas
+                const printWindow = window.open('', '', 'height=600,width=800');
+                printWindow.document.write('<html><head><title>Print QR Code</title></head><body>');
+                printWindow.document.write('<h1>QR Code to Print:</h1>');
+                printWindow.document.write('<img src="' + canvas.toDataURL() + '" />');
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                alert("No QR Code to print!");
+            }
+        });
+    </script>
+</body>
+</html>
